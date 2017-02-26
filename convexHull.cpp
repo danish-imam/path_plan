@@ -9,6 +9,7 @@
  using namespace cv;
  using namespace std;
 
+int **graph_array;
  Mat src; Mat src_gray;
  int thresh = 100;
  int max_thresh = 255;
@@ -64,7 +65,16 @@ int main()
    imshow( "Source", src );
 
    createTrackbar( " Threshold:", "Source", &thresh, max_thresh, thresh_callback );
-   thresh_callback( 0, 0 );//source:docs opencv not taught in wws
+   thresh_callback( 0, 0 );//source:docs opencv ,not taught in wws
+
+//printing of adjacency matrix
+   for(int i=0;i<node.size();i++)
+   {
+    for(int j=0;j<node.size();j++)
+    cout << graph_array[i][j] << endl;
+    cout << endl;
+   }
+
 
    waitKey(0);
    return(0);
@@ -102,11 +112,11 @@ int main()
         for( int j=0;j<hull[i].size();j++)
         {
              //cout << hull[i].size() << endl;
-             cout << hull[i][j] << endl;
-             if(src_gray.at<uchar>(i, j == 0))
+             //cout << hull[i][j] << endl;
+             if(src_gray.at<uchar>(i, j) == 0)
              node.push_back(hull[i][j]);//storing the edges as nodes
         } 
-        cout << endl;
+        //cout << endl;
       }
     
    imwrite("convexhull.jpg",drawing);
@@ -122,7 +132,7 @@ void node_gen()
   int i, j;
 
   //taking nodes as edges
-  for(i=0;i< src.rows; i+=5)
+  for(i=0;i< src.rows; i+=10)
   {
     if(src_gray.at<uchar>(i,0) == 0)
     node.push_back(Point(i, 0));
@@ -130,7 +140,7 @@ void node_gen()
     if(src_gray.at<uchar>(i,src.cols-1) == 0)
     node.push_back(Point(i, src.cols-1));
   }
-  for(i=0;i< src.cols; i+=5)
+  for(i=0;i< src.cols; i+=10)
   {
     if(src_gray.at<uchar>(0, i) == 0)
     node.push_back(Point(0, i));
@@ -149,7 +159,7 @@ void node_gen()
     int y=node[i].y;
     while(r<abs(src.rows-x) || r<abs(src.cols-y))
     {
-      r+=5;
+      r+=10;
       if(isValid((x+r),(y+r)))
       node.push_back(Point(x+r, y+r));
       if(isValid((x+r),(y-r)))
@@ -160,18 +170,39 @@ void node_gen()
       node.push_back(Point(x-r, y-r));
     }
   }
-  current_size = node.size();unsigned int c=0;
-  cout << current_size << endl;
-  cout << src.rows*src.cols << endl;
+  current_size = node.size();
+
+  //generation of graph_array
+  graph_array  = (int **)malloc(sizeof(int *) * current_size);
+  graph_array[0] = (int *)malloc(sizeof(int) * current_size * current_size);
+  for(i = 0; i < current_size; i++)
+        graph_array[i] = (*graph_array + current_size * i);
+  //I have got this idea from geekforgeeks this dynamic array
+  
+
+  unsigned int c=0;
+  //cout << current_size << endl;
+  //cout << src.rows*src.cols << endl;
   for(i=0;i<current_size;i++)
   {
-    for(j=0;j<current_size && i!=j;j++)
+    for(j=0;j<current_size ;j++)
     {
-      if(node_con(node[i], node[j]));
-      c++;
-    }
-  }
-  cout << c << endl;
+      if(i!=j)
+      {
+        if(node_con(node[i], node[j]))
+        {
+          graph_array[i][j]= abs(node[i].x - node[j].x) + abs(node[i].y - node[j].y);
+          c++;
+        }
+        else
+        graph_array[i][j]=0;
+      }
+      else 
+      graph_array[i][j]=0;
+    }//for j
+  }//for i
+  //cout << c << endl;
 }
+//    END OF node_gen
 
 
