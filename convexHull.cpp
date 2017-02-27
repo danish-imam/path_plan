@@ -5,6 +5,7 @@
  #include <stdlib.h>
  #include <vector>
  #include <math.h>
+ #include <limits.h>
 
  using namespace cv;
  using namespace std;
@@ -20,6 +21,119 @@ vector<Point> node;
 void thresh_callback(int, void* );
  void node_gen();
 
+
+//************************************************************************************************************************
+// A C / C++ program for Dijkstra's single source shortest path algorithm.
+// The program is for adjacency matrix representation of the graph
+
+  
+// A utility function to find the vertex with minimum distance value, from
+// the set of vertices not yet included in shortest path tree
+int minDistance(int dist[], bool sptSet[])
+{
+   // Initialize min value
+   int min = INT_MAX, min_index;
+  
+   for (int v = 0; v < node.size(); v++)
+     if (sptSet[v] == false && dist[v] <= min)
+         min = dist[v], min_index = v;
+  
+   return min_index;
+}
+
+void printPath(int parent[], int j)
+{
+    // Base Case : If j is source
+    if (parent[j]==-1)
+        return;
+ 
+    printPath(parent, parent[j]);
+ 
+    printf("%d ", j);
+}
+  
+// A utility function to print the constructed distance array
+int printSolution(int dist[], int parent[])
+{
+    int init = 0;
+    printf("Vertex\t  Distance\tPath");
+    for (int i = 1; i < node.size(); i++)
+    {
+        printf("\n%d -> %d \t\t %d\t\t%d ", init, i, dist[i], init);
+        printPath(parent, i);
+    }
+}
+  
+// Funtion that implements Dijkstra's single source shortest path algorithm
+// for a graph represented using adjacency matrix representation
+void dijkstra()
+{
+     int dist[node.size()];     // The output array.  dist[i] will hold the shortest
+                      // distance from src to i
+  
+     bool sptSet[node.size()]; // sptSet[i] will true if vertex i is included in shortest
+                     // path tree or shortest distance from src to i is finalized
+  
+
+    //parent array
+    int parent[node.size()];
+    
+     // Initialize all distances as INFINITE and stpSet[] as false
+     for (int i = 0; i < node.size(); i++)
+        dist[i] = INT_MAX, sptSet[i] = false, parent[0] = -1;
+  
+     // Distance of source vertex from itself is always 0
+     dist[0] = 0;
+  
+     // Find shortest path for all vertices
+     for (int count = 0; count < node.size()-1; count++)
+     {
+       // Pick the minimum distance vertex from the set of vertices not
+       // yet processed. u is always equal to src in first iteration.
+       int u = minDistance(dist, sptSet);
+  
+       // Mark the picked vertex as processed
+       sptSet[u] = true;
+  
+       // Update dist value of the adjacent vertices of the picked vertex.
+       for (int v = 0; v < node.size(); v++)
+  
+         // Update dist[v] only if is not in sptSet, there is an edge from 
+         // u to v, and total weight of path from src to  v through u is 
+         // smaller than current value of dist[v]
+         if (!sptSet[v] && graph_array[u][v] && dist[u] != INT_MAX 
+                                       && dist[u]+graph_array[u][v] < dist[v])
+            {
+              parent[v]=u;
+              dist[v] = dist[u] + graph_array[u][v];
+            }
+     }
+  
+     // print the constructed distance array
+     printSolution(dist, parent);
+}
+  
+// driver program to test above function
+/*int main()
+{
+   /* Let us create the example graph discussed above */
+  /* int graph[V][V] = {{0, 4, 0, 0, 0, 0, 0, 8, 0},
+                      {4, 0, 8, 0, 0, 0, 0, 11, 0},
+                      {0, 8, 0, 7, 0, 4, 0, 0, 2},
+                      {0, 0, 7, 0, 9, 14, 0, 0, 0},
+                      {0, 0, 0, 9, 0, 10, 0, 0, 0},
+                      {0, 0, 4, 14, 10, 0, 2, 0, 0},
+                      {0, 0, 0, 0, 0, 2, 0, 1, 6},
+                      {8, 11, 0, 0, 0, 0, 1, 0, 7},
+                      {0, 0, 2, 0, 0, 0, 6, 7, 0}
+                     };
+  
+    dijkstra(graph, 0);
+  
+    return 0;
+}*/
+
+//**************************************************************************************************************************************
  int isValid(int i,int j)//to include edges
 {
 	if((i<0)||(j<0)||(i>=src.rows)||(j>=src.cols))
@@ -67,13 +181,18 @@ int main()
    createTrackbar( " Threshold:", "Source", &thresh, max_thresh, thresh_callback );
    thresh_callback( 0, 0 );//source:docs opencv ,not taught in wws
 
+   node.insert(node.begin(), Point(0, 0));
+   node.push_back(Point(src.rows, src.cols));
+
+    dijkstra();
+
 //printing of adjacency matrix
-   for(int i=0;i<node.size();i++)
+   /*for(int i=0;i<node.size();i++)
    {
     for(int j=0;j<node.size();j++)
     cout << graph_array[i][j] << endl;
     cout << endl;
-   }
+   }*/
 
 
    waitKey(0);
