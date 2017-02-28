@@ -29,16 +29,17 @@ void thresh_callback(int, void* );
   
 // A utility function to find the vertex with minimum distance value, from
 // the set of vertices not yet included in shortest path tree
-int minDistance(int dist[], bool sptSet[])
+int minDistance(int dist[], bool sptSet[])                                     //``````````````````````````````
 {
    // Initialize min value
    int min = INT_MAX, min_index;
   
    for (int v = 0; v < node.size(); v++)
      if (sptSet[v] == false && dist[v] <= min)
-         min = dist[v], min_index = v;
+         {min = dist[v]; min_index = v;}
   
    return min_index;
+ // return 0;
 }
 
 void printPath(int parent[], int j)
@@ -77,6 +78,8 @@ void dijkstra()
 
     //parent array
     int parent[node.size()];
+
+    
     
      // Initialize all distances as INFINITE and stpSet[] as false
      for (int i = 0; i < node.size(); i++)
@@ -91,9 +94,10 @@ void dijkstra()
        // Pick the minimum distance vertex from the set of vertices not
        // yet processed. u is always equal to src in first iteration.
        int u = minDistance(dist, sptSet);
-  
+       /*if(u>node.size() || u<0)
+       {cout << 'a' << endl;exit(0);}*/
        // Mark the picked vertex as processed
-       sptSet[u] = true;
+       sptSet[u] = true;                                                     //`````````````````````
   
        // Update dist value of the adjacent vertices of the picked vertex.
        for (int v = 0; v < node.size(); v++)
@@ -101,8 +105,8 @@ void dijkstra()
          // Update dist[v] only if is not in sptSet, there is an edge from 
          // u to v, and total weight of path from src to  v through u is 
          // smaller than current value of dist[v]
-         if (!sptSet[v] && graph_array[u][v] && dist[u] != INT_MAX 
-                                       && dist[u]+graph_array[u][v] < dist[v])
+         if (!sptSet[v] && graph_array[u][v] /*&& dist[u] != INT_MAX*/ 
+                                       && dist[u]+graph_array[u][v] < dist[v])      //````````````````````````````
             {
               parent[v]=u;
               dist[v] = dist[u] + graph_array[u][v];
@@ -111,7 +115,7 @@ void dijkstra()
   
      // print the constructed distance array
      printSolution(dist, parent);
-}
+}                                                                                 //`````````````````````````````
   
 // driver program to test above function
 /*int main()
@@ -181,16 +185,14 @@ int main()
    createTrackbar( " Threshold:", "Source", &thresh, max_thresh, thresh_callback );
    thresh_callback( 0, 0 );//source:docs opencv ,not taught in wws
 
-   node.insert(node.begin(), Point(0, 0));
-   node.push_back(Point(src.rows, src.cols));
-
-    dijkstra();
+   
+    dijkstra();                                                     //````````````````````````
 
 //printing of adjacency matrix
-   /*for(int i=0;i<node.size();i++)
+  /* for(int i=0;i<node.size();i++)
    {
     for(int j=0;j<node.size();j++)
-    cout << graph_array[i][j] << endl;
+    cout << graph_array[i][j] << "  ";
     cout << endl;
    }*/
 
@@ -289,6 +291,9 @@ void node_gen()
       node.push_back(Point(x-r, y-r));
     }
   }
+    node.insert(node.begin(), Point(0, 0));
+  node.push_back(Point(src.rows, src.cols));
+
   current_size = node.size();
 
   //generation of graph_array
