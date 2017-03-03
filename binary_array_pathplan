@@ -1,10 +1,9 @@
 #include <bits/stdc++.h>
-using namespace std;
 #include <limits.h>
-#define ROW 9
-#define COL 10 
+#include <vector>
+using namespace std;    
 int **dist_arr;
-//int ROW,COL;
+int ROW,COL;
 
 struct Point
 {
@@ -26,42 +25,33 @@ int isValid(int i,int j)//to include edges
 		return 1;
 }
  
-// These arrays are used to get row and column
-// numbers of 4 neighbours of a given cell
 int rowNum[] = {-1, 0, 0, 1};
 int colNum[] = {0, -1, 1, 0};
  
-// function to find the shortest path between
-// a given source cell to a destination cell.
-int path(int mat[ROW][COL],  Point start, Point Final)
+int path(vector < vector < int > >& mat ,  Point start, Point Final)
 {
-    // check source and finalination cell
-    // of the matrix have value 1
+    // check source and finalination cell of the matrix have value 1
     if (!mat[start.x][start.y] || !mat[Final.x][Final.y])
         return INT_MAX;
  
     bool arr_visit[ROW][COL];
-    memset(arr_visit, false, sizeof arr_visit);
+    memset(arr_visit, false, sizeof arr_visit);//setting all unvisited
      
     arr_visit[start.x][start.y] = true;
  
     queue<queueNode> q;
      
-    queueNode s = {start, 0};
-    q.push(s);  // Enqueue source cell
- 
-    // Do a BFS starting from source cell
+    queueNode s = {start, 0};//co-ordinate & distance from start
+    q.push(s);  
+
     while (!q.empty())
     {
-        queueNode curr = q.front();
-        Point pt = curr.pt;
- 
-        // If we have reached the destination cell, we are done
-        if (pt.x == Final.x && pt.y == Final.y)
-            return curr.dist;
- 
-        // Otherwise dequeue the front cell in the queue and enqueue its adjacent cells
+        queueNode current = q.front();
+        Point pt = current.pt;
         q.pop();
+ 
+        if (pt.x == Final.x && pt.y == Final.y)
+            return current.dist;
  
         for (int i = 0; i < 4; i++)
         {
@@ -75,9 +65,9 @@ int path(int mat[ROW][COL],  Point start, Point Final)
                 // mark cell as arr_visit and enqueue it
                 arr_visit[row][col] = true;
                 queueNode Adjcell = { {row, col},
-                                      curr.dist + 1 };
+                                      current.dist + 1 };
                 q.push(Adjcell);
-                dist_arr[row][col] = curr.dist +1;
+                dist_arr[row][col] = current.dist +1;
             }
         }
     }
@@ -86,16 +76,15 @@ int path(int mat[ROW][COL],  Point start, Point Final)
     return INT_MAX;
 }
  
-// Driver program to test above function
 int main()
 {
-    //scanf("%d",&ROW);
-    //scanf("%d",&COL);
+    scanf("%d",&ROW);
+    scanf("%d",&COL);
 
-    //int mat[ROW][COL];
+    vector <vector <int > > mat(ROW);    
 
     dist_arr  = (int **)malloc(sizeof(int *) * ROW);//source
-    dist_arr[0] = (int *)malloc(sizeof(int) * COL * ROW);//this dynamic decleration copied from http://www.geeksforgeeks.org/dynamically-allocate-2d-array-c/
+    dist_arr[0] = (int *)malloc(sizeof(int) * COL * ROW);//this dynamic decleration idea from http://www.geeksforgeeks.org/dynamically-allocate-2d-array-c/
     for(int i = 0; i < ROW; i++)
         dist_arr[i] = (*dist_arr + COL * i);
 
@@ -105,27 +94,27 @@ int main()
     dist_arr[i][j]=INT_MAX;
     dist_arr[0][0] = 0;
 
-    /*for(int i=0;i<ROW;i++)
+    int num;
+    for(int i=0;i<ROW;i++)
     for(int j=0;j<COL;j++)
-    scanf("%d", &mat[i][j]);*/
-
-    int mat[ROW][COL] =
     {
-        { 1, 0, 1, 1, 1, 1, 0, 1, 1, 1 },
-        { 1, 0, 1, 0, 1, 1, 1, 0, 1, 1 },
-        { 1, 1, 1, 0, 1, 1, 0, 1, 0, 1 },
-        { 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 },
-        { 1, 1, 1, 0, 1, 1, 1, 0, 1, 0 },
-        { 1, 0, 1, 1, 1, 1, 0, 1, 0, 0 },
-        { 1, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-        { 1, 0, 1, 1, 1, 1, 0, 1, 1, 1 },
-        { 1, 1, 0, 0, 0, 0, 1, 0, 0, 1 }
-    };
+        scanf("%d", &num);
+        mat[i].push_back(num);
+    }
+    
     int x1,x0,y0,y1,c=0;
-    x0=y0=0;
-    x1=3;y1=4;
-  Point source = {x0, y0};
-   Point Final = {x1, y1};
+
+    for(int i=0;i<ROW;i++)
+        for(int j=0;j<COL;j++)
+            if(mat[i][j] == 5)
+                {x0=i;y0=j;}
+            else if(mat[i][j] == 10)
+                {x1=i;y1=j;}
+            else
+                continue;
+
+    Point source = {x0, y0};
+    Point Final = {x1, y1};
  
     int dist = path(mat, source, Final);
  
@@ -135,31 +124,22 @@ int main()
     mat[x1][y1]=10;
     if(c)
     {
-    while(x1!=x0 || y1!=y0)
-    for(int i=-1;i<=1;i++)
-    for(int j=-1;j<=1;j++)
-    if(i!=j && i!=(-j)  )
-    if(isValid((x1+i), (y1+j)))
-    if(dist_arr[x1+i][y1+j]-dist_arr[x1][y1] == -1)
-    {x1=x1+i;y1=y1+j; mat[x1][y1]=4;}
-    mat[x0][x1]=5;
+        while(x1!=x0 || y1!=y0)
+        for(int i=-1;i<=1;i++)
+        for(int j=-1;j<=1;j++)
+        if(i!=j && i!=(-j)  )
+        if(isValid((x1+i), (y1+j)))
+        if(dist_arr[x1+i][y1+j]-dist_arr[x1][y1] == -1)
+            {x1=x1+i;y1=y1+j; mat[x1][y1]=4;}
+        mat[x0][x1]=5;
 
-   /* if(dist_arr[x1-1][y1] == (dist_arr[x1][y1]-1))
-    printf("sssssssssssssssss%d\n",dist_arr[x1-1][y1]);*/
-    for(int i=0;i<ROW;i++)
-    {
-        for(int j=0;j<COL;j++)    
-        printf("%5d  ",mat[i][j]);
+        for(int i=0;i<ROW;i++)
+        {
+            for(int j=0;j<COL;j++)    
+            printf("%5d  ",mat[i][j]);
 
-        printf("\n");
-    }
-    /*for(int i=0;i<ROW;i++)
-    {
-        for(int j=0;j<COL;j++)    
-        printf("%10d  ",dist_arr[i][j]);
-
-        printf("\n");
-    }*/
+            printf("\n");
+        }
     }
     return 0;
 }
